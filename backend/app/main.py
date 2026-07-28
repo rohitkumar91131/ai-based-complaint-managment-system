@@ -3,6 +3,7 @@ from app.database import Base, engine
 from app.models import Complaint
 from app.routers.complaint_router import router as complaint_router
 from app.routers.ai_router import router as ai_router
+from app.routers.copilot_router import router as copilot_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,6 +23,12 @@ app.include_router(
     ai_router,
     prefix="/api/ai",
     tags=["AI"],
+)
+
+app.include_router(
+    copilot_router,
+    prefix="/api/copilot",
+    tags=["AI Copilot"],
 )
 
 @app.get("/")
