@@ -2,9 +2,11 @@ from typing import TypedDict
 
 
 class ComplaintState(TypedDict):
-    complaint_text: str
+    user_message: str
 
-    extracted_data: dict
+    intent: str
+
+    current_complaint: dict
 
     summary: str
 
