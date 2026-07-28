@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.database import Base, engine
 from app.models import Complaint
 from app.routers.complaint_router import router as complaint_router
+from app.routers.ai_router import router as ai_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -16,6 +17,12 @@ app.include_router(
     tags=["Complaints"]
 )
 
+
+app.include_router(
+    ai_router,
+    prefix="/api/ai",
+    tags=["AI"],
+)
 
 @app.get("/")
 def home():
