@@ -1,19 +1,13 @@
-from app.ai.intent import detect_intent
+from app.graph.complaint_graph import graph
 
-print(
-    detect_intent(
-        "Apollo Pharmacy reported broken capsules."
-    )
+result = graph.invoke(
+    {
+        "user_message": "Apollo Pharmacy reported broken blister packs for batch BT-101.",
+        "intent": "",
+        "current_complaint": {},
+        "summary": "",
+        "risk": {},
+    }
 )
 
-print(
-    detect_intent(
-        "Sorry, batch number is BMX24602."
-    )
-)
-
-print(
-    detect_intent(
-        "Upload this complaint PDF."
-    )
-)
+print(result)
