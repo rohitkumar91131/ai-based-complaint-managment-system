@@ -1,7 +1,8 @@
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID
+import re
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class ComplaintCreate(BaseModel):
@@ -23,6 +24,52 @@ class ComplaintCreate(BaseModel):
 
     initial_severity: str | None = None
     priority: str | None = None
+
+    @field_validator(
+        "manufacturing_date",
+        "expiry_date",
+        "complaint_date",
+        mode="before",
+    )
+    @classmethod
+    def parse_dates(cls, value):
+        if value in (None, ""):
+            return None
+
+        if isinstance(value, date):
+            return value
+
+        if isinstance(value, str):
+            # Supports: 15-03-2026
+            try:
+                return datetime.strptime(value, "%d-%m-%Y").date()
+            except ValueError:
+                pass
+
+            # Supports: 2026-03-15
+            try:
+                return datetime.strptime(value, "%Y-%m-%d").date()
+            except ValueError:
+                pass
+
+        raise ValueError("Invalid date format")
+
+    @field_validator("quantity_affected", mode="before")
+    @classmethod
+    def parse_quantity(cls, value):
+        if value in (None, ""):
+            return None
+
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        if isinstance(value, str):
+            match = re.search(r"\d+(\.\d+)?", value)
+
+            if match:
+                return float(match.group())
+
+        raise ValueError("Invalid quantity")
 
 
 class ComplaintResponse(ComplaintCreate):

@@ -3,13 +3,10 @@ from app.ai.summarizer import summarize_complaint
 from app.ai.risk_assessor import assess_risk
 from app.ai.intent import detect_intent
 from app.ai.editor import edit_complaint
-from app.ai.editor import edit_complaint
 
 
 def intent_node(state):
-    result = detect_intent(
-        state["user_message"]
-    )
+    result = detect_intent(state["user_message"])
 
     return {
         "intent": result["intent"]
@@ -30,10 +27,6 @@ def extract_node(state):
     }
 
 
-
-
-
-
 def edit_node(state):
     updated = edit_complaint(
         state["current_complaint"],
@@ -43,10 +36,11 @@ def edit_node(state):
     return {
         "current_complaint": updated
     }
+
+
 def document_node(state):
     print("Document Extraction Node")
 
-    # Placeholder for now
     return {}
 
 
@@ -67,4 +61,25 @@ def risk_node(state):
 
     return {
         "risk": risk
+    }
+
+
+def unknown_node(state):
+    return {
+        "current_complaint": {},
+        "summary": (
+            "Hello! 👋 I'm your AI Complaint Assistant.\n\n"
+            "I can help you:\n"
+            "• Log a new complaint\n"
+            "• Edit an existing complaint\n"
+            "• Extract details from a PDF\n"
+            "• Generate complaint summaries\n"
+            "• Assess complaint risk\n\n"
+            "Please describe a complaint or upload a complaint PDF to get started."
+        ),
+        "risk": {
+            "level": "",
+            "reason": "",
+            "recommended_action": "",
+        },
     }

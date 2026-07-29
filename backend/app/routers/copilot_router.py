@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import tempfile
+import traceback
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 
@@ -28,7 +29,6 @@ async def copilot_chat(
     text = user_message
 
     if file:
-
         extension = os.path.splitext(file.filename)[1].lower()
 
         if extension != ".pdf":
@@ -65,21 +65,30 @@ async def copilot_chat(
         else:
             text = pdf_text
 
-    result = graph.invoke(
-        {
-            "user_message": text,
-            "intent": "",
-            "current_complaint": complaint,
-            "summary": "",
-            "risk": {},
-        }
-    )
+    try:
+        result = graph.invoke(
+            {
+                "user_message": text,
+                "intent": "",
+                "current_complaint": complaint,
+                "summary": "",
+                "risk": {},
+            }
+        )
 
-    return {
-        "intent": result["intent"],
-        "complaint": result["current_complaint"],
-        "ai_copilot": {
-            "summary": result["summary"],
-            "risk": result["risk"],
-        },
-    }
+        return {
+            "intent": result.get("intent", ""),
+            "complaint": result.get("current_complaint", {}),
+            "ai_copilot": {
+                "summary": result.get("summary", ""),
+                "risk": result.get("risk", {}),
+            },
+        }
+
+    except Exception as e:
+        traceback.print_exc()
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e),
+        )
