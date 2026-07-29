@@ -1,46 +1,71 @@
+import os
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
-from app.database import Base, engine
-from app.models import Complaint
-from app.routers.complaint_router import router as complaint_router
-from app.routers.ai_router import router as ai_router
-from app.routers.copilot_router import router as copilot_router
 from fastapi.middleware.cors import CORSMiddleware
 
-Base.metadata.create_all(bind=engine)
+from app.database import Base, engine
+from app.routers.ai_router import router as ai_router
+from app.routers.copilot_router import router as copilot_router
+from app.routers.complaint_router import router as complaint_router
+
+# =====================================================
+# Load Environment Variables
+# =====================================================
+
+load_dotenv()
+
+# =====================================================
+# Create FastAPI App
+# =====================================================
 
 app = FastAPI(
     title="AI Powered Customer Complaint Management System",
     version="1.0.0",
 )
 
+# =====================================================
+# Database
+# =====================================================
+
+Base.metadata.create_all(bind=engine)
+
+# =====================================================
+# CORS Configuration
+# =====================================================
+
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(
-    complaint_router,
-    prefix="/api",
-    tags=["Complaints"]
-)
+
+# =====================================================
+# Health Check
+# =====================================================
 
 @app.get("/health")
 def health():
     return {
         "status": "ok",
-        "service": "Complaint AI Backend"
+        "service": "Complaint AI Backend",
     }
 
+# =====================================================
+# Routers
+# =====================================================
 
 app.include_router(
     ai_router,
-    prefix="/api/ai",
+    prefix="/api",
     tags=["AI"],
 )
 
@@ -50,8 +75,20 @@ app.include_router(
     tags=["AI Copilot"],
 )
 
+app.include_router(
+    complaint_router,
+    prefix="/api",
+    tags=["Complaints"],
+)
+
+# =====================================================
+# Root Endpoint
+# =====================================================
+
 @app.get("/")
-def home():
+def root():
     return {
-        "message": "Backend Running 🚀"
+        "message": "AI Powered Customer Complaint Management System API",
+        "docs": "/docs",
+        "health": "/health",
     }
