@@ -419,7 +419,3 @@ GitHub: [https://github.com/rohitkumar91131](https://github.com/rohitkumar91131)
 
 ```
 
----
-
-If you want, I can also turn this into a cleaner **professional README with badges, emoji headings, and a sharper portfolio style**, or I can make a **separate `README.md` for backend and frontend folders** so each one has its own setup instructions.
-```
